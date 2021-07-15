@@ -59,7 +59,7 @@ void allocate(int _size){    //分配
 
 }
 
-void recycle(){
+void recycle(int _num){
 
 }
 
@@ -97,7 +97,7 @@ int main() {
                 cout << "回收，请输入块号:";
                 int num;
                 cin >> num;
-                
+
                 break;
             case 's':
                 cout << "展示" << endl;

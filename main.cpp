@@ -28,7 +28,7 @@ vector<Memory> history;
 void allocate(int _size){    //分配
     bool isSuccess = false;
     for(int i = 0; i < memory.size(); i++){
-        if(memory[i].len == _size){
+        if(memory[i].len == _size){     //如果大小一致
             int _begin = memory[i].start;   //这个数据块起点
             swap(memory[i], memory[memory.size()-1]);   //用于删除这个数据块
             memory.pop_back();
@@ -37,7 +37,7 @@ void allocate(int _size){    //分配
             isSuccess = true;
             break;
         }
-        else if(memory[i].len > _size) {
+        else if(memory[i].len > _size) {    //如果空闲块略大
             int _begin = memory[i].start;   //起点
             int _start = memory[i].start + _size;   //剩余数据块的起点
             int _len = memory[i].len - _size;
@@ -59,11 +59,50 @@ void allocate(int _size){    //分配
 
 }
 
-void recycle(int _num){
+void recycle(int _num){     //回收
+    if(_num < 0 || _num >= history.size()){
+        cout << "回收失败" << endl;
+        return;
+    }
 
+    int _start = history[_num].start;
+    int _len = history[_num].len;
+
+    //从history中删除数据块
+    swap(history[_num], history[history.size()]);
+    history.pop_back();
+    sort(history.begin(), history.end(), cmp);
+
+    //向前合并
+    for(int i = 0; i < memory.size(); i++){
+        if((memory[i].start + memory[i].len) == _start){
+            _start = memory[i].start;
+            _len += memory[i].len;
+            //删除这个块
+            swap(memory[i], memory[memory.size()]);
+            memory.pop_back();
+            sort(memory.begin(), memory.end(), cmp);
+            break;
+        }
+    }
+    //向后合并
+    for(int i = 0; i < memory.size(); i++){
+        if(memory[i].start == (_start+_len)){
+            _len += memory[i].len;
+            //删除这个块
+            swap(memory[i], memory[memory.size()]);
+            memory.pop_back();
+            sort(memory.begin(), memory.end(), cmp);
+            break;
+        }
+    }
+    //插入
+    memory.push_back(Memory(_start, _len));
+    sort(memory.begin(), memory.end(), cmp);
+    cout << "回收成功！" << endl;
 }
 
-void show(){
+void show(){        //展示
     cout << "------剩余空闲块--------" << endl;
     for(int i = 0; i < memory.size(); i++){
         cout << "块" << i << " start：" << memory[i].start << " len：" << memory[i].len << endl;
@@ -97,7 +136,7 @@ int main() {
                 cout << "回收，请输入块号:";
                 int num;
                 cin >> num;
-
+                recycle(num);
                 break;
             case 's':
                 cout << "展示" << endl;
